@@ -32,3 +32,20 @@ def flat2[A] (l: List[List[A]]) : List[A] =
   List.foldRight(l, Nil:List[A])(append)
 
 flat2(bigList)
+
+//Exercise 3.16
+def incrList(l: List[Int]): List[Int] =
+  List.foldRight(l, Nil:List[Int])((el, acc) => Cons(el + 1, acc))
+
+incrList(x)
+
+//Exercise 3.17
+def doubleToStr (l: List[Double]): List[String] =
+  List.foldRight(l, Nil:List[String])((el, acc) => Cons(el.toString, acc))
+
+val dd: List[Double] = List(2.0, 7.5, 5.4)
+doubleToStr(dd)
+
+//Exercise 3.18
+List.map[Double, String](dd)(_.toString)
+List.map(x)(_ + 2)

@@ -91,5 +91,6 @@ object List { // `List` companion object. Contains functions for creating and wo
       case Cons(x, xs) => foldLeft(xs, f(z, x))(f)
   }
 
-  def map[A,B](l: List[A])(f: A => B): List[B] = ???
+  def map[A,B](l: List[A])(f: A => B): List[B] =
+    List.foldRight(l, Nil:List[B])((el, acc) => Cons(f(el), acc))
 }
