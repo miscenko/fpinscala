@@ -58,4 +58,17 @@ val ll = List(1,2,3,4,5,6)
 filter(ll)(_%2 == 0)
 
 //Exercise 3.20
-def flatMap[A,B](as: List[A])(f: A => List[B]): List[B] = ???
+def flatMap[A,B](as: List[A])(f: A => List[B]): List[B] =
+  List.foldRight(as, Nil:List[B])((el, acc) => append(f(el), acc))
+
+flatMap(List(1,2,3))(i => List(i,i))
+
+//Exercise 3.21
+//Use flatMap to implement filter
+def filter2[A](as: List[A])(f: A => Boolean): List[A] =
+  flatMap(as)(el => if (f(el)) List(el) else Nil)
+
+filter2(ll)(_%2 == 0)
+
+//Exercise 3.22
+
