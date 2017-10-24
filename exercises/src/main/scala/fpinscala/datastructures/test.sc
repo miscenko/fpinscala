@@ -1,4 +1,4 @@
-import fpinscala.datastructures.List.foldLeft
+
 import fpinscala.datastructures._
 
 val x = List(1,2,3,4,5,1)
@@ -49,3 +49,13 @@ doubleToStr(dd)
 //Exercise 3.18
 List.map[Double, String](dd)(_.toString)
 List.map(x)(_ + 2)
+
+//Exercise 3.19
+def filter[A](as: List[A])(f: A => Boolean): List[A] =
+  List.foldRight(as, Nil:List[A])((el, acc) => if(f(el)) Cons(el, acc) else acc)
+
+val ll = List(1,2,3,4,5,6)
+filter(ll)(_%2 == 0)
+
+//Exercise 3.20
+def flatMap[A,B](as: List[A])(f: A => List[B]): List[B] = ???
