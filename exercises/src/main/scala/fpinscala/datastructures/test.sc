@@ -71,4 +71,17 @@ def filter2[A](as: List[A])(f: A => Boolean): List[A] =
 filter2(ll)(_%2 == 0)
 
 //Exercise 3.22
+val l1 = List(1,2,3)
+val l2 = List(4,5,6)
+
+
+def addLists(l1: List[Int], l2: List[Int]): List[Int] = (l1,l2) match {
+  case (Nil, _) => Nil
+  case (_, Nil) => Nil
+  case (Cons(x1, xs), Cons(y1, ys)) => Cons(x1+y1, addLists(xs, ys))
+}
+
+addLists(l1, l2 )
+
+//Exercise 3.23
 
