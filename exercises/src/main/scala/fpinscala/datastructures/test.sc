@@ -93,3 +93,20 @@ def zipWith[A](l1: List[A], l2: List[A])(f: (A,A) => A): List[A] = (l1,l2) match
 zipWith(l1,l2)(_ + _)
 
 //Exercise 3.24
+def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean = {
+
+  def loop[A](li1: List[A], li2: List[A]): Boolean = (li1, li2) match {
+    case (_, Nil) => true
+    case (Nil, _) => false
+    case (Cons(el1, tail1), Cons(el2, tail2)) =>
+      if (el1 == el2) loop(tail1, tail2)
+      else loop(tail1, sub)
+  }
+
+  loop(sup, sub)
+}
+
+val ll1 = List(1,2,3,4)
+val ll2 = List(1,2)
+
+hasSubsequence(ll1, ll2)
