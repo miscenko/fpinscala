@@ -84,4 +84,12 @@ def addLists(l1: List[Int], l2: List[Int]): List[Int] = (l1,l2) match {
 addLists(l1, l2 )
 
 //Exercise 3.23
+def zipWith[A](l1: List[A], l2: List[A])(f: (A,A) => A): List[A] = (l1,l2) match {
+  case (Nil, _) => Nil
+  case (_, Nil) => Nil
+  case (Cons(x1, xs), Cons(y1, ys)) => Cons(f(x1,y1), zipWith(xs, ys)(f) )
+}
 
+zipWith(l1,l2)(_ + _)
+
+//Exercise 3.24
