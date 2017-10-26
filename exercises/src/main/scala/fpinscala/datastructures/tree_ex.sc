@@ -58,3 +58,4 @@ map(t1)(_ + 10)
 
 // Exercise 3.29
 // Generalize size, maximum, depth, and map, writing a new function fold
+def fold[A,B](t: Tree[A], z: B)(f: (A, B) => B): B
