@@ -1,7 +1,7 @@
 import fpinscala.datastructures._
 
 
-val t1 = Branch(Leaf(5), Branch(Leaf(4), Leaf(1)))
+val t1 = Branch(Leaf(10), Branch(Leaf(4), Leaf(1)))
 
 // Exercise 3.25
 def size[A](t: Tree[A]): Int = {
@@ -58,4 +58,28 @@ map(t1)(_ + 10)
 
 // Exercise 3.29
 // Generalize size, maximum, depth, and map, writing a new function fold
-def fold[A,B](t: Tree[A], z: B)(f: (A, B) => B): B
+def fold[A,B](t: Tree[A])(l: A => B)(b: (B,B) => B): B = t match {
+  case Leaf(v) => l(v)
+  case Branch(left, right) => b(fold(left)(l)(b), fold(right)(l)(b))
+}
+
+def size3[A](t: Tree[A]): Int =
+  fold(t)(_ => 1)(_ + _ + 1)
+
+size3(t1)
+
+def maximum2(t: Tree[Int]): Int =
+  fold(t)(a => a)(_ max _)
+
+maximum2(t1)
+
+def depth3[A](t: Tree[A]): Int =
+  fold(t)(_ => 0)((d1,d2) => 1 + (d1 max d2))
+
+depth3(t1)
+
+def map2[A,B](t: Tree[A])(f: A => B): Tree[B] =
+  fold(t) (a => Leaf(f(a)): Tree[B]) (Branch(_,_))
+
+
+map2(t1)(_ + 10)
