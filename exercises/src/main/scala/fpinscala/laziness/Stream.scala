@@ -17,7 +17,36 @@ trait Stream[+A] {
     case Empty => None
     case Cons(h, t) => if (f(h())) Some(h()) else t().find(f)
   }
-  def take(n: Int): Stream[A] = ???
+
+  // will stack overflow for large streams
+  def toListRec: List[A] = this match {
+    case Cons(h, t) => h() :: t().toListRec
+    case _ => List()
+
+  }
+
+  def toList: List[A] = {
+    @annotation.tailrec
+    def loop (s: Stream[A], acc: List[A]): List[A] = s match {
+      case Empty => acc
+      case Cons(h, t) => loop(t(), h() :: acc)
+    }
+
+    loop(this, List()).reverse
+  }
+
+  //this is incorrect (returns reversed list)
+  def take(n: Int): Stream[A] = {
+    def loop (s: Stream[A], n: Int, acc: Stream[A]): Stream[A] = {
+      if (n == 0) acc
+      else s match {
+        case Cons(h, t) => loop(t(), n-1, cons(h(), acc))
+        case _ => acc
+      }
+    }
+
+    loop(this, n, Stream())
+  }
 
   def drop(n: Int): Stream[A] = ???
 
