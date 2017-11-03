@@ -132,7 +132,7 @@ object Stream {
   def from(n: Int): Stream[Int] =
     cons(n, from(n + 1))
 
-  def fib(n: Int): Stream[Int] = {
+  def fib: Stream[Int] = {
     def fibLoop(pred1: Int, pred2: Int): Stream[Int] =
       cons(pred1, fibLoop(pred2, pred1 + pred2))
 
