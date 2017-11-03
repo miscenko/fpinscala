@@ -118,6 +118,7 @@ object Stream {
     else cons(as.head, apply(as.tail: _*))
 
   val ones: Stream[Int] = Stream.cons(1, ones)
+
   def constant[A](a: A): Stream[A] = {
     lazy val tail: Stream[A] = Cons(() => a, () => tail)
     tail
@@ -139,11 +140,5 @@ object Stream {
   }
 
   def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = ???
-
-  def constantMy[A](a: A): Stream[A] = {
-    val x: Stream[A] = Stream.cons(a, x)
-    x
-  }
-
 
 }
