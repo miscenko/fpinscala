@@ -118,7 +118,32 @@ object Stream {
     else cons(as.head, apply(as.tail: _*))
 
   val ones: Stream[Int] = Stream.cons(1, ones)
-  def from(n: Int): Stream[Int] = ???
+  def constant[A](a: A): Stream[A] = {
+    lazy val tail: Stream[A] = Cons(() => a, () => tail)
+    tail
+  }
+
+  def from2(n: Int): Stream[Int] = {
+    lazy val tail: Stream[Int] = Cons(() => n, () => from2(n + 1 ))
+    tail
+  }
+
+  def from(n: Int): Stream[Int] =
+    cons(n, from(n + 1))
+
+  def fib(n: Int): Stream[Int] = {
+    def fibLoop(pred1: Int, pred2: Int): Stream[Int] =
+      cons(pred1, fibLoop(pred2, pred1 + pred2))
+
+    fibLoop(0, 1)
+  }
 
   def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = ???
+
+  def constantMy[A](a: A): Stream[A] = {
+    val x: Stream[A] = Stream.cons(a, x)
+    x
+  }
+
+
 }
