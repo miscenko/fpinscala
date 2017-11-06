@@ -139,6 +139,19 @@ object Stream {
     fibLoop(0, 1)
   }
 
-  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = ???
+  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = f(z) match {
+    case Some((h, s)) => cons (h, unfold(s)(f))
+    case None => empty
+  }
 
+  def fibWithUnfold: Stream[Int] =
+    unfold((0,1)) { case (p1, p2) => Some((p1, (p2, p1+p2))) }
+
+  def fromViaUnfold(n: Int): Stream[Int] =
+    unfold(n)(n => Some((n, n + 1)))
+
+  def constantViaUnfold[A](a: A): Stream[A] =
+    unfold(a)(_ => Some((a, a)))
+
+  val onesViaUnfold = unfold(1)(_ => Some(1,1))
 }
