@@ -128,6 +128,17 @@ trait Stream[+A] {
 
   def zipAll[B](s2: Stream[B]): Stream[(Option[A],Option[B])] = ???
 
+  //different from book - didn't test it
+  def tails: Stream[Stream[A]] = {
+    def tailsLoop(s: Stream[A]): Stream[Stream[A]] =
+      unfold(s) {
+      case Cons(h, t) => Some((s, t()))
+      case _ => None
+    }
+
+    tailsLoop(this) append Stream(empty)
+  }
+
 }
 
 
