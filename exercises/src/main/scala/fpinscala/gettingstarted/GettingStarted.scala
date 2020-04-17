@@ -39,22 +39,12 @@ object MyModule {
   // Exercise 1: Write a function to compute the nth fibonacci number
 
   def fib(n: Int): Int = {
+
     @tailrec
-    def loop (n: Int, prev1: Int, prev2: Int): Int = {
-      /* // my answer
-      if (i < 2) i
-      else if (i == 2) prev1 + prev2
-      else loop(i-1, prev2, prev1 + prev2)
-      */
+    def loop(n1: Int, n2: Int, cnt: Int): Int =
+      if (cnt <= 0) n1 else loop(n2, n1 + n2, cnt - 1)
 
-      // real answer is better
-      if (n == 0) prev1
-      else loop(n - 1, prev2, prev1 + prev2)
-    }
-
-
-    loop(n, 0, 1)
-
+    loop(0, 1, n)
   }
 
   // This definition and `formatAbs` are very similar..
