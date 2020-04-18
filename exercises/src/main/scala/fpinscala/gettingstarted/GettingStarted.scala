@@ -55,7 +55,7 @@ object MyModule {
 
   // We can generalize `formatAbs` and `formatFactorial` to
   // accept a _function_ as a parameter
-  def formatResult(name: String, n: Int, f: Int => Int) = {
+  def formatResult(name: String, n: Int, f: Int => Int): String = {
     val msg = "The %s of %d is %d."
     msg.format(name, n, f(n))
   }
@@ -95,7 +95,7 @@ object AnonymousFunctions {
     println(formatResult("absolute value", -42, abs))
     println(formatResult("factorial", 7, factorial))
     println(formatResult("increment", 7, (x: Int) => x + 1))
-    println(formatResult("increment2", 7, (x) => x + 1))
+    println(formatResult("increment2", 7, x => x + 1))
     println(formatResult("increment3", 7, x => x + 1))
     println(formatResult("increment4", 7, _ + 1))
     println(formatResult("increment5", 7, x => { val r = x + 1; r }))
@@ -127,7 +127,7 @@ object MonomorphicBinarySearch {
 
 }
 
-object PolymorphicFunctions {
+object PolymorphicFunctions extends App {
 
   // Here's a polymorphic version of `binarySearch`, parameterized on
   // a function for testing whether an `A` is greater than another `A`.
@@ -149,7 +149,33 @@ object PolymorphicFunctions {
 
   // Exercise 2: Implement a polymorphic function to check whether
   // an `Array[A]` is sorted
-  def isSorted[A](as: Array[A], gt: (A,A) => Boolean): Boolean = ???
+  def isSorted[A](as: Array[A], gt: (A,A) => Boolean): Boolean = {
+
+    @tailrec
+    def check(i: Int): Boolean = {
+      if (i <= 0) true
+      else if (gt(as(i - 1), as(i))) check(i - 1)
+      else false
+    }
+
+    check(as.length - 1)
+  }
+
+  val a = Array(1, 4, 6)
+  val b = Array(1, 6, 4)
+  val c = Array(1, 4, 4)
+  val d = Array(1)
+  val e: Array[Int] = Array()
+
+  val f = (e1: Int, e2: Int) => e1 <= e2
+  val yesOrNot = (ar: Array[Int]) => if (isSorted(ar, f)) "is" else "not "
+
+  println(s"${a.mkString("(", ",", ")")} ${yesOrNot(a)} sorted")
+  println(s"${b.mkString("(", ",", ")")} ${yesOrNot(b)} sorted")
+  println(s"${c.mkString("(", ",", ")")} ${yesOrNot(c)} sorted")
+  println(s"${d.mkString("(", ",", ")")} ${yesOrNot(d)} sorted")
+  println(s"${e.mkString("(", ",", ")")} ${yesOrNot(e)} sorted")
+
 
   // Polymorphic functions are often so constrained by their type
   // that they only have one implementation! Here's an example:
@@ -184,4 +210,5 @@ object PolymorphicFunctions {
 
   def compose[A,B,C](f: B => C, g: A => B): A => C =
     ???
+
 }
