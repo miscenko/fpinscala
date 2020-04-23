@@ -11,4 +11,5 @@ object ListTest extends App {
   println(s"after drop: ${List.drop(ll, 2)}")
 
   println(s"after drop while < 4: ${List.dropWhile(ll, (e: Int) => e < 4)}")
+  println(s"init of ll list: ${List.init(ll)}")
 }

@@ -25,7 +25,7 @@ object List { // `List` companion object. Contains functions for creating and wo
     if (as.isEmpty) Nil
     else Cons(as.head, apply(as.tail: _*))
 
-  val x = List(1,2,3,4,5) match {
+  val x: Int = List(1,2,3,4,5) match {
     case Cons(x, Cons(2, Cons(4, _))) => x
     case Nil => 42
     case Cons(x, Cons(y, Cons(3, Cons(4, _)))) => x + y
@@ -45,10 +45,10 @@ object List { // `List` companion object. Contains functions for creating and wo
       case Cons(x, xs) => f(x, foldRight(xs, z)(f))
     }
 
-  def sum2(ns: List[Int]) =
+  def sum2(ns: List[Int]): Int =
     foldRight(ns, 0)((x,y) => x + y)
 
-  def product2(ns: List[Double]) =
+  def product2(ns: List[Double]): Double =
     foldRight(ns, 1.0)(_ * _) // `_ * _` is more concise notation for `(x,y) => x * y`; see sidebar
 
 
@@ -62,6 +62,7 @@ object List { // `List` companion object. Contains functions for creating and wo
     case Cons(_, t) => Cons(h, t)
   }
 
+  @scala.annotation.tailrec
   def drop[A](l: List[A], n: Int): List[A] = {
     if (n <= 0) l
     else l match {
@@ -70,18 +71,16 @@ object List { // `List` companion object. Contains functions for creating and wo
     }
   }
 
+  @scala.annotation.tailrec
   def dropWhile[A](l: List[A], f: A => Boolean): List[A] = l match  {
     case Cons(h, t) if f(h) => dropWhile(t, f)
     case _ => l
   }
 
-  def init[A](l: List[A]): List[A] = {
-    def loop(l: List[A], r: List[A]): List[A] = r match {
-      case Cons(x, Nil) => l
-      case Cons(x, xs) => loop(append(l, Cons(x, Nil)), xs)
-    }
-
-    loop(Nil, l)
+  def init[A](l: List[A]): List[A] = l match {
+    case Cons(_, Nil) => Nil
+    case Cons(h, t) => Cons(h, init(t))
+    case _ => l
   }
 
   def length[A](l: List[A]): Int =
