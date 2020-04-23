@@ -63,13 +63,15 @@ object List { // `List` companion object. Contains functions for creating and wo
   }
 
   def drop[A](l: List[A], n: Int): List[A] = {
-    if (n < 0 ) sys.error("illegal argument")
-    else if (n == 0) l
-    else  drop(tail(l), n-1)
+    if (n <= 0) l
+    else l match {
+      case Nil => Nil
+      case Cons(_, t) => drop(t, n - 1)
+    }
   }
 
   def dropWhile[A](l: List[A], f: A => Boolean): List[A] = l match  {
-    case Cons(x, xs) if f(x) => dropWhile(xs, f)
+    case Cons(h, t) if f(h) => dropWhile(t, f)
     case _ => l
   }
 
