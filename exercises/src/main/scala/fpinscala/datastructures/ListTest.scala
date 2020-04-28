@@ -18,17 +18,30 @@ object ListTest extends App {
       ex 3.11
    */
   def sum(l: List[Int]): Int = List.foldLeft(l, 0)(_ + _)
+
   println(s"sum of l with fold left: ${sum(l)}")
 
   def product(l: List[Int]): Int = List.foldLeft(l, 1)(_ * _)
+
   println(s"product of ll with fold left: ${product(ll)}")
 
   def length(l: List[Int]): Int = List.foldLeft(l, 0)((acc, _) => acc + 1)
+
   println(s"length of l with fold left: ${length(l)}")
 
   /*
     3.12
    */
   def reverse[A](l: List[A]): List[A] = List.foldLeft(l, List[A]())((rl, e) => Cons(e, rl))
+
   println(s"reverse of ll : ${reverse(ll)}")
+
+  /*
+    3.13
+   */
+  def foldLeftViaFoldRight_1[A, B](l: List[A], z: B)(f: (B, A) => B): B =
+    List.foldRight(l, (b: B) => b) ((a, g) => b => g(f(b, a)))(z)
+
+  def foldRightViaFoldLeft[A,B](l: List[A], z: B)(f: (A,B) => B): B =
+    List.foldLeft(reverse(l), z)((b, a) => f(a, b))
 }
