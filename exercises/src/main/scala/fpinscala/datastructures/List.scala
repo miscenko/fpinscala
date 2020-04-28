@@ -92,6 +92,45 @@ object List { // `List` companion object. Contains functions for creating and wo
     case Cons(x, xs) => foldLeft(xs, f(z, x))(f)
   }
 
+  /*  using fold left
+    ex 3.11
+ */
+  def sumViaFoldLeft(l: List[Int]): Int = foldLeft(l, 0)(_ + _)
+
+  def productViaFoldLeft(l: List[Int]): Int = foldLeft(l, 1)(_ * _)
+
+  def lengthViaFoldLeft(l: List[Int]): Int = foldLeft(l, 0)((acc, _) => acc + 1)
+
+  /*
+    3.12
+   */
+  def reverse[A](l: List[A]): List[A] = foldLeft(l, List[A]())((rl, e) => Cons(e, rl))
+
+  /*
+    3.13
+   */
+  def foldLeftViaFoldRight_1[A, B](l: List[A], z: B)(f: (B, A) => B): B =
+    foldRight(l, (b: B) => b) ((a, g) => b => g(f(b, a)))(z)
+
+  def foldRightViaFoldLeft[A,B](l: List[A], z: B)(f: (A,B) => B): B =
+    foldLeft(reverse(l), z)((b, a) => f(a, b))
+
+  /*
+    3.14
+   */
+  def appendViaFoldRight[A](l1: List[A], l2: List[A]): List[A] =
+    foldRight(l1, l2)(Cons(_, _))
+
+  /*
+    3.15
+   */
+  def concat[A](ll: List[List[A]]): List[A] =
+    foldRight(ll, List[A]())(List.append)
+
+  // 3.16
+  def add1(l: List[Int]): List[Int] =
+    foldRight(l, List[Int]())((x, xs) => Cons(x + 1, xs))
+
   def map[A,B](l: List[A])(f: A => B): List[B] =
     List.foldRight(l, Nil:List[B])((el, acc) => Cons(f(el), acc))
 }
