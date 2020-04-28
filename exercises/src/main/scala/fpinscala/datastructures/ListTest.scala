@@ -44,4 +44,14 @@ object ListTest extends App {
 
   def foldRightViaFoldLeft[A,B](l: List[A], z: B)(f: (A,B) => B): B =
     List.foldLeft(reverse(l), z)((b, a) => f(a, b))
+
+  /*
+    3.14
+   */
+  def appendViaFoldRight[A](l1: List[A], l2: List[A]): List[A] =
+    List.foldRight(l1, l2)(Cons(_, _))
+
+  /*
+    3.15
+   */
 }
