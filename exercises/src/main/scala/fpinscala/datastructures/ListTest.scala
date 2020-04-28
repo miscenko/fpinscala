@@ -29,4 +29,11 @@ object ListTest extends App {
 
   // 3.16
   println(s"after add1: ${List.add1(l2)}")
+
+  // 3.17
+  println(s"${List.toListOfStrings(List(1.0, 2.0, 3.0))}")
+
+  // 3.19
+  println(s"filter even numbers: " +
+    s"${List.filter(List(1, 2, 3, 4, 5, 6, 7, 8)) (_ % 2 != 0)}")
 }

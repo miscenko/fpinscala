@@ -131,6 +131,16 @@ object List { // `List` companion object. Contains functions for creating and wo
   def add1(l: List[Int]): List[Int] =
     foldRight(l, List[Int]())((x, xs) => Cons(x + 1, xs))
 
+  // 3.17
+  def toListOfStrings(l: List[Double]): List[String] =
+    foldRight(l, List[String]())((x, xs) => Cons(x.toString, xs))
+
+  // 3.18
   def map[A,B](l: List[A])(f: A => B): List[B] =
-    List.foldRight(l, Nil:List[B])((el, acc) => Cons(f(el), acc))
+    foldRight(l, List[B]())((x, xs) => Cons(f(x), xs))
+
+  // 3.19
+  def filter[A](as: List[A])(f: A => Boolean): List[A] =
+    foldRight(as, List[A]())((x, xs) => if (f(x)) Cons(x, xs) else xs)
+
 }
