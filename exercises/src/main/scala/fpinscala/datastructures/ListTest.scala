@@ -36,4 +36,7 @@ object ListTest extends App {
   // 3.19
   println(s"filter even numbers: " +
     s"${List.filter(List(1, 2, 3, 4, 5, 6, 7, 8)) (_ % 2 != 0)}")
+
+  // 3.20
+  println(s"${List.flatMap(List(1,2,3))(i => List(i,i))}")
 }
