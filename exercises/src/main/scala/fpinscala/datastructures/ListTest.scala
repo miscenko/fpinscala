@@ -39,4 +39,10 @@ object ListTest extends App {
 
   // 3.20
   println(s"${List.flatMap(List(1,2,3))(i => List(i,i))}")
+
+  //3.23
+  val a = List(1, 2, 3)
+  val b = List(4, 5, 6)
+  println(s"zipWith: ${List.zipWith(a, b)(_ + _)}")
+
 }

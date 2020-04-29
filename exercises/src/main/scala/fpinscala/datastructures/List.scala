@@ -1,7 +1,5 @@
 package fpinscala.datastructures
 
-import fpinscala.datastructures
-
 import scala.annotation.tailrec
 
 sealed trait List[+A] // `List` data type, parameterized on a type, `A`
@@ -156,4 +154,16 @@ object List { // `List` companion object. Contains functions for creating and wo
     flatMap(as)(a => if (f(a)) List(a) else Nil)
 
   // 3.22
+  def addLists(l1: List[Int], l2: List[Int]): List[Int] = (l1, l2) match {
+    case (Nil, _) => Nil
+    case (_, Nil) => Nil
+    case (Cons(x, xs), Cons(y, ys)) => Cons(x + y, addLists(xs, ys))
+  }
+
+  // 3.23
+  def zipWith[A, B, C](l1: List[A], l2: List[B])(f: (A, B) => C): List[C] = (l1, l2) match {
+    case (Nil, _) => Nil
+    case (_, Nil) => Nil
+    case (Cons(x, xs), Cons(y, ys)) => Cons(f(x, y), zipWith(xs, ys)(f))
+  }
 }
