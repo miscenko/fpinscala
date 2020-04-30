@@ -45,4 +45,7 @@ object ListTest extends App {
   val b = List(4, 5, 6)
   println(s"zipWith: ${List.zipWith(a, b)(_ + _)}")
 
+  println(s"${List.hasSubsequence(ll, List(2, 3, 4))}")
+  println(s"${List.hasSubsequence(ll, List(6, 3, 4))}")
+  println(s"${List.hasSubsequence(ll, List(4))}")
 }
