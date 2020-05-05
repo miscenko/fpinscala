@@ -1,7 +1,41 @@
 package fpinscala.laziness
 
 import Stream._
+
+import scala.annotation.tailrec
+import scala.collection.mutable.ListBuffer
+
 trait Stream[+A] {
+
+  // 5.1
+  def toListRecursive: List[A] = this match {
+    case Empty => Nil
+    case Cons(h, t) => h() :: t().toListRecursive
+  }
+
+  def toList: List[A] = {
+    @tailrec
+    def loop(s: Stream[A], acc: List[A]): List[A] = s match {
+      case Cons(h, t) => loop(t(), h() :: acc)
+      case _ => acc
+    }
+
+    loop(this, Nil).reverse
+  }
+
+  def toListFast: List[A] = {
+    val buf = new ListBuffer[A]
+
+    @tailrec
+    def loop(s: Stream[A]): List[A] = s match {
+      case Cons(h, t) =>
+        buf += h()
+        loop(t())
+      case _ => buf.toList
+    }
+
+    loop(this)
+  }
 
   def foldRight[B](z: => B)(f: (A, => B) => B): B = // The arrow `=>` in front of the argument type `B` means that the function `f` takes its second argument by name and may choose not to evaluate it.
     this match {
@@ -16,23 +50,6 @@ trait Stream[+A] {
   final def find(f: A => Boolean): Option[A] = this match {
     case Empty => None
     case Cons(h, t) => if (f(h())) Some(h()) else t().find(f)
-  }
-
-  // will stack overflow for large streams
-  def toListRec: List[A] = this match {
-    case Cons(h, t) => h() :: t().toListRec
-    case _ => List()
-
-  }
-
-  def toList: List[A] = {
-    @annotation.tailrec
-    def loop(s: Stream[A], acc: List[A]): List[A] = s match {
-      case Empty => acc
-      case Cons(h, t) => loop(t(), h() :: acc)
-    }
-
-    loop(this, List()).reverse
   }
 
   //this is incorrect (returns reversed stream)
