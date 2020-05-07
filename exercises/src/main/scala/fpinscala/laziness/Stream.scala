@@ -189,7 +189,7 @@ object Stream {
   }
 
   def fibWithUnfold: Stream[Int] =
-    unfold((0,1)) { case (p1, p2) => Some((p1, (p2, p1+p2))) }
+    unfold((0,1)) { case (p1, p2) => Some((p1, (p2, p1 + p2))) }
 
   def fromViaUnfold(n: Int): Stream[Int] =
     unfold(n)(n => Some((n, n + 1)))
