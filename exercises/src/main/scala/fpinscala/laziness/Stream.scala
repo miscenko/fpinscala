@@ -95,15 +95,15 @@ trait Stream[+A] {
   def flatMap[B](f: A => Stream[B]): Stream[B] =
     foldRight(empty[B])((a, b) => f(a) append b)
 
-  //////////////////////////////////////////////////////////
-
   @annotation.tailrec
   final def find(f: A => Boolean): Option[A] = this match {
     case Empty => None
     case Cons(h, t) => if (f(h())) Some(h()) else t().find(f)
   }
 
-    def startsWith[B](s: Stream[B]): Boolean = ???
+  //////////////////////////////////////////////////////////
+
+  def startsWith[B](s: Stream[B]): Boolean = ???
 
   def mapViaUnfold[B](f: A => B): Stream[B] =
     unfold(this) {
