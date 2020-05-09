@@ -171,16 +171,10 @@ object Stream {
     tail
   }
 
+  // 5.9
+  def from(n: Int): Stream[Int] = cons(n, from(n + 1))
 
   ///////////////////////////////////////////////////
-
-  def from2(n: Int): Stream[Int] = {
-    lazy val tail: Stream[Int] = Cons(() => n, () => from2(n + 1 ))
-    tail
-  }
-
-  def from(n: Int): Stream[Int] =
-    cons(n, from(n + 1))
 
   def fib: Stream[Int] = {
     def fibLoop(pred1: Int, pred2: Int): Stream[Int] =
