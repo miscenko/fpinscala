@@ -165,10 +165,14 @@ object Stream {
 
   val ones: Stream[Int] = Stream.cons(1, ones)
 
+  // 5.8
   def constant[A](a: A): Stream[A] = {
     lazy val tail: Stream[A] = Cons(() => a, () => tail)
     tail
   }
+
+
+  ///////////////////////////////////////////////////
 
   def from2(n: Int): Stream[Int] = {
     lazy val tail: Stream[Int] = Cons(() => n, () => from2(n + 1 ))
