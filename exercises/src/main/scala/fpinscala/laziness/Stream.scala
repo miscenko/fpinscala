@@ -174,19 +174,19 @@ object Stream {
   // 5.9
   def from(n: Int): Stream[Int] = cons(n, from(n + 1))
 
-  ///////////////////////////////////////////////////
-
+  // 5.10
   def fib: Stream[Int] = {
-    def fibLoop(pred1: Int, pred2: Int): Stream[Int] =
-      cons(pred1, fibLoop(pred2, pred1 + pred2))
+    def go (f0: Int, f1: Int): Stream[Int] =
+      cons(f0, go(f1, f0 + f1))
 
-    fibLoop(0, 1)
+    go(0, 1)
   }
 
-  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = f(z) match {
-    case Some((h, s)) => cons (h, unfold(s)(f))
-    case None => empty
-  }
+  // 5.11
+  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = ???
+
+
+  ///////////////////////////////////////////////////
 
   def fibWithUnfold: Stream[Int] =
     unfold((0,1)) { case (p1, p2) => Some((p1, (p2, p1 + p2))) }
