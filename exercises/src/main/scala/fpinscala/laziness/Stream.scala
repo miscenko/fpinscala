@@ -103,8 +103,6 @@ trait Stream[+A] {
 
   //////////////////////////////////////////////////////////
 
-  def startsWith[B](s: Stream[B]): Boolean = ???
-
   def mapViaUnfold[B](f: A => B): Stream[B] =
     unfold(this) {
       case Cons(h, t) => Some((f(h()), t()))
@@ -143,6 +141,7 @@ trait Stream[+A] {
     tailsLoop(this) append Stream(empty)
   }
 
+  def startsWith[B](s: Stream[B]): Boolean = ???
 }
 
 
@@ -175,7 +174,7 @@ object Stream {
   def from(n: Int): Stream[Int] = cons(n, from(n + 1))
 
   // 5.10
-  def fib: Stream[Int] = {
+  def fibs: Stream[Int] = {
     def go (f0: Int, f1: Int): Stream[Int] =
       cons(f0, go(f1, f0 + f1))
 
@@ -183,20 +182,21 @@ object Stream {
   }
 
   // 5.11
-  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = ???
+  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = f(z) match {
+    case Some((a, s)) => cons(a, unfold(s)(f))
+    case None => empty
+  }
 
-
-  ///////////////////////////////////////////////////
-
+  // 5.12
   def fibWithUnfold: Stream[Int] =
-    unfold((0,1)) { case (p1, p2) => Some((p1, (p2, p1 + p2))) }
+    unfold((0, 1)) { case(f0, f1) => Some((f0, (f1, f0 + f1))) }
 
   def fromViaUnfold(n: Int): Stream[Int] =
-    unfold(n)(n => Some((n, n + 1)))
+    unfold(n)(n => Some(n, n + 1))
 
   def constantViaUnfold[A](a: A): Stream[A] =
-    unfold(a)(_ => Some((a, a)))
+    unfold(a)(_ => Some(a, a))
 
-  val onesViaUnfold = unfold(1)(_ => Some(1,1))
+  val onesViaUnfold: Stream[Int] = unfold(1)(_ => Some(1, 1))
 
 }
