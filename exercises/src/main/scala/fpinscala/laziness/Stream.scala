@@ -135,22 +135,13 @@ trait Stream[+A] {
       case _ => None
     }
 
-  //////////////////////////////////////////////////////////
-  //different from book - didn't test it
-  def tails: Stream[Stream[A]] = {
-    def tailsLoop(s: Stream[A]): Stream[Stream[A]] =
-      unfold(s) {
-      case Cons(h, t) => Some((s, t()))
-      case _ => None
-    }
+  // 5.14
+  def startsWith[B](s: Stream[B]): Boolean =
+    zipAll(s).takeWhile(_._2.isDefined) forAll { case (e1, e2) => e1 == e2 }
 
-    tailsLoop(this) append Stream(empty)
-  }
-
-  def startsWith[B](s: Stream[B]): Boolean = ???
+  // 5.15
+  def tails: Stream[Stream[A]] = ???
 }
-
-
 
 case object Empty extends Stream[Nothing]
 case class Cons[+A](h: () => A, t: () => Stream[A]) extends Stream[A]
