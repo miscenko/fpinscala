@@ -101,7 +101,7 @@ trait Stream[+A] {
     case Cons(h, t) => if (f(h())) Some(h()) else t().find(f)
   }
 
-  //////////////////////////////////////////////////////////
+  // 5.13 Use unfold to implement map, take, takeWhile, zipWith (as in chapter 3), and zipAll
 
   def mapViaUnfold[B](f: A => B): Stream[B] =
     unfold(this) {
@@ -110,9 +110,8 @@ trait Stream[+A] {
     }
 
   def takeViaUnfold(n: Int): Stream[A] =
-    unfold((this, n)) {
-      case (Cons(h, t), 1) => Some((h(), (empty, 0)))
-      case (Cons(h, t), n) if n > 1 => Some((h(), (t(), n-1)))
+    unfold(this, n) {
+      case (Cons(h, t), n) if n > 0 => Some((h(), (t(), n - 1)))
       case _ => None
     }
 
@@ -123,13 +122,20 @@ trait Stream[+A] {
     }
 
   def zipWith[B,C](s2: Stream[B])(f: (A,B) => C): Stream[C] =
-    unfold((this, s2)) {
+    unfold(this, s2) {
       case (Cons(h1, t1), Cons(h2, t2)) => Some((f(h1(), h2()), (t1(), t2())))
       case _ => None
     }
 
-  def zipAll[B](s2: Stream[B]): Stream[(Option[A],Option[B])] = ???
+  def zipAll[B](s2: Stream[B]): Stream[(Option[A],Option[B])] =
+    unfold(this, s2) {
+      case (Cons(h1, t1), Cons(h2, t2)) => Some((Some(h1()), Some(h2())), (t1(), t2()))
+      case (Cons(h1, t1), Empty) => Some((Some(h1()), None), (t1(), empty))
+      case (Empty, Cons(h2, t2)) => Some((None, Some(h2())), (empty, t2()))
+      case _ => None
+    }
 
+  //////////////////////////////////////////////////////////
   //different from book - didn't test it
   def tails: Stream[Stream[A]] = {
     def tailsLoop(s: Stream[A]): Stream[Stream[A]] =
