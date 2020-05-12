@@ -140,7 +140,17 @@ trait Stream[+A] {
     zipAll(s).takeWhile(_._2.isDefined) forAll { case (e1, e2) => e1 == e2 }
 
   // 5.15
-  def tails: Stream[Stream[A]] = ???
+  def tails: Stream[Stream[A]] =
+    unfold(this) {
+      case Empty => None
+      case s => Some((s, s drop 1))
+    }.append(Stream(Empty))
+
+  def hasSubsequence[B](s: Stream[B]): Boolean =
+    tails exists (_ startsWith s)
+
+  // 5.16
+  def scanRight[B](z: B)(f: (A, => B) => B): Stream[B] = ???
 }
 
 case object Empty extends Stream[Nothing]
