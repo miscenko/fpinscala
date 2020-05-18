@@ -40,6 +40,7 @@ object RNG {
   def double(rng: RNG): (Double, RNG) =
     map(nonNegativeInt)(i => i.toDouble / (Int.MaxValue.toDouble + 1))(rng)
 
+  // 6.3
   def intDouble(rng: RNG): ((Int,Double), RNG) = {
     val (i, g1) = rng.nextInt
     val (d, g2) = double(g1)
@@ -47,18 +48,23 @@ object RNG {
   }
 
   def doubleInt(rng: RNG): ((Double,Int), RNG) = {
-    val ((i, d), g) = intDouble(rng)
-    ((d, i), g)
+    val ((i, d), r) = intDouble(rng)
+    ((d, i), r)
   }
 
   def double3(rng: RNG): ((Double,Double,Double), RNG) = {
-    val (d1, g1) = double(rng)
-    val (d2, g2) = double(g1)
-    val (d3, g3) = double(g2)
-    ((d1, d2, d3), g3)
+    val (d1, r1) = double(rng)
+    val (d2, r2) = double(r1)
+    val (d3, r3) = double(r2)
+    ((d1, d2, d3), r3)
   }
 
-  def ints(count: Int)(rng: RNG): (List[Int], RNG) = ???
+  // 6.4
+  def ints(count: Int)(rng: RNG): (List[Int], RNG) =
+    (0 until count).foldLeft((List[Int](), rng)) { (p, _) =>
+      val (i, r) = p._2.nextInt
+      (i :: p._1, r)
+    }
 
   def map2[A,B,C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] = ???
 
