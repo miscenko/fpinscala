@@ -37,8 +37,8 @@ object RNG {
   }
 
   // 6.2, 6.5
-  def double(rng: RNG): (Double, RNG) =
-    map(nonNegativeInt)(_ / (Int.MaxValue.toDouble + 1))(rng)
+  val double: Rand[Double] = map(nonNegativeInt)(_ / (Int.MaxValue.toDouble + 1))
+
 
   // 6.3
   def intDouble(rng: RNG): ((Int,Double), RNG) = {
@@ -75,6 +75,7 @@ object RNG {
     }
   }
 
+  // 6.7
   def sequence[A](fs: List[Rand[A]]): Rand[List[A]] = ???
 
   def flatMap[A,B](f: Rand[A])(g: A => Rand[B]): Rand[B] = ???
