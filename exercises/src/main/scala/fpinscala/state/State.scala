@@ -95,15 +95,27 @@ object RNG {
       if (i + (n-1) - mod >= 0) unit(mod) else nonNegativeLessThan(n) // ???
     }
 
+  // 6.9
+  def mapViaFlatmap[A,B](s: Rand[A])(f: A => B): Rand[B] =
+    flatMap(s) { a => unit(f(a)) }
+
+  def map2ViaFlatmap[A,B,C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] =
+    flatMap(ra)(a => map(rb)(b => f(a, b)))
 }
 
 case class State[S,+A](run: S => (A, S)) {
+  // 6.10
   def map[B](f: A => B): State[S, B] =
     ???
+
   def map2[B,C](sb: State[S, B])(f: (A, B) => C): State[S, C] =
     ???
-  def flatMap[B](f: A => State[S, B]): State[S, B] =
-    ???
+
+  def flatMap[B](f: A => State[S, B]): State[S, B] = State(
+    s => {
+      val (a, s2) = run(s)
+      f(a).run(s2)
+    } )
 }
 
 sealed trait Input
@@ -113,6 +125,10 @@ case object Turn extends Input
 case class Machine(locked: Boolean, candies: Int, coins: Int)
 
 object State {
+  // 6.10
+  def unit[S, A](a: A): State[S, A] = State( s => (a, s))
+
+
   type Rand[A] = State[RNG, A]
   def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] = ???
 }
