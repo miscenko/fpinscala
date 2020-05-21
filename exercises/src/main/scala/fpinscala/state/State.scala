@@ -127,9 +127,8 @@ object State {
   // 6.10
   def unit[S, A](a: A): State[S, A] = State( s => (a, s))
 
-  def sequence[S, A](sas: List[State[S, A]]): State[S, List[A]] = ???
-  //def sequence[A](fs: List[Rand[A]]): Rand[List[A]] =
-    //fs.foldRight(unit(List[A]()))((f, acc) => map2(f, acc)(_ :: _))
+  def sequence[S, A](sas: List[State[S, A]]): State[S, List[A]] =
+    sas.foldRight(unit[S, List[A]](List()))((s, acc) => s.map2(acc)(_ :: _))
 
   type Rand[A] = State[RNG, A]
   def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] = ???
