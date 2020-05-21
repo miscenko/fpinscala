@@ -123,6 +123,22 @@ case object Turn extends Input
 
 case class Machine(locked: Boolean, candies: Int, coins: Int)
 
+object CandyDispenser {
+
+  def update: Input => Machine => Machine = i => m => {
+    (i, m) match {
+      case (Turn, Machine(true, _, _)) => m
+      case (Coin, Machine(false, _, _)) => m
+      case (_, Machine(_, 0, _)) => m
+      case (Coin, Machine(true, c, cc)) => Machine(locked = false, c, cc + 1)
+      case (Turn, Machine(false, c, cc)) => Machine(locked = true, c - 1, cc)
+    }
+  }
+
+  def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] = ???
+
+}
+
 object State {
   // 6.10
   def unit[S, A](a: A): State[S, A] = State( s => (a, s))
@@ -131,5 +147,13 @@ object State {
     sas.foldRight(unit[S, List[A]](List()))((s, acc) => s.map2(acc)(_ :: _))
 
   type Rand[A] = State[RNG, A]
-  def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] = ???
+
+  def modify[S](f: S => S): State[S, Unit] = for {
+    s <- get // Gets the current state and assigns it to `s`.
+    _ <- set(f(s)) // Sets the new state to `f` applied to `s`.
+  } yield ()
+
+  def get[S]: State[S, S] = State(s => (s, s))
+
+  def set[S](s: S): State[S, Unit] = State(_ => ((), s))
 }
