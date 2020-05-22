@@ -103,6 +103,8 @@ object RNG {
     flatMap(ra)(a => map(rb)(b => f(a, b)))
 }
 
+import State._
+
 case class State[S,+A](run: S => (A, S)) {
   // 6.10
   def map[B](f: A => B): State[S, B] =
@@ -115,6 +117,25 @@ case class State[S,+A](run: S => (A, S)) {
     val (a, s2) = run(s)
     f(a).run(s2)
   })
+}
+
+object State {
+  // 6.10
+  def unit[S, A](a: A): State[S, A] = State( s => (a, s))
+
+  def sequence[S, A](sas: List[State[S, A]]): State[S, List[A]] =
+    sas.foldRight(unit[S, List[A]](List()))((s, acc) => s.map2(acc)(_ :: _))
+
+  type Rand[A] = State[RNG, A]
+
+  def modify[S](f: S => S): State[S, Unit] = for {
+    s <- get // Gets the current state and assigns it to `s`.
+    _ <- set(f(s)) // Sets the new state to `f` applied to `s`.
+  } yield ()
+
+  def get[S]: State[S, S] = State(s => (s, s))
+
+  def set[S](s: S): State[S, Unit] = State(_ => ((), s))
 }
 
 sealed trait Input
@@ -135,25 +156,18 @@ object CandyDispenser {
     }
   }
 
-  def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] = ???
+  def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] = for {
+    _ <- sequence(inputs map (modify[Machine] _ compose update))
+    s <- get
+  } yield (s.coins, s.candies)
 
-}
-
-object State {
-  // 6.10
-  def unit[S, A](a: A): State[S, A] = State( s => (a, s))
-
-  def sequence[S, A](sas: List[State[S, A]]): State[S, List[A]] =
-    sas.foldRight(unit[S, List[A]](List()))((s, acc) => s.map2(acc)(_ :: _))
-
-  type Rand[A] = State[RNG, A]
-
-  def modify[S](f: S => S): State[S, Unit] = for {
-    s <- get // Gets the current state and assigns it to `s`.
-    _ <- set(f(s)) // Sets the new state to `f` applied to `s`.
-  } yield ()
-
-  def get[S]: State[S, S] = State(s => (s, s))
-
-  def set[S](s: S): State[S, Unit] = State(_ => ((), s))
+  /*
+  isn't it much simpler ?!
+  why do we need State if Machine is already like a state and the result is inside Machine anyway ?
+  comparing to the book solution - we don't need 'sequence', 'modify' and 'get'
+  just composing 'update'(s) - anyway original solution is composing the same 'update'(s),
+  but foldLeft easier to read
+   */
+  def simulateMachine2(inputs: List[Input]): Machine => Machine =
+    inputs.foldLeft((m: Machine) => m) (_ compose update(_))
 }
