@@ -22,7 +22,13 @@ object Par {
     def isCancelled = false 
     def cancel(evenIfRunning: Boolean): Boolean = false 
   }
-  
+
+  def lazyUnit[A](a: => A): Par[A] = fork(unit(a))
+
+  // 7.4
+  def asyncF[A,B](f: A => B): A => Par[B] =
+    a => lazyUnit(f(a))
+
   def map2[A,B,C](a: Par[A], b: Par[B])(f: (A,B) => C): Par[C] =  /* `map2` doesn't evaluate the call to `f` in a
                                                                   separate logical thread, in accord with our design
                                                                   choice of having `fork` be the sole function in the
@@ -56,7 +62,7 @@ object Par {
   def map[A,B](pa: Par[A])(f: A => B): Par[B] = 
     map2(pa, unit(()))((a,_) => f(a))
 
-  def sortPar(parList: Par[List[Int]]) = map(parList)(_.sorted)
+  def sortPar(parList: Par[List[Int]]): Par[List[Int]] = map(parList)(_.sorted)
 
   def equal[A](e: ExecutorService)(p: Par[A], p2: Par[A]): Boolean = 
     p(e).get == p2(e).get
@@ -73,8 +79,6 @@ object Par {
   implicit def toParOps[A](p: Par[A]): ParOps[A] = new ParOps(p)
 
   class ParOps[A](p: Par[A]) {
-
-
   }
 }
 
