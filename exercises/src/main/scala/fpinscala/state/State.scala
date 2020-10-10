@@ -59,6 +59,9 @@ object RNG {
     ((d1, d2, d3), r3)
   }
 
+  def boolean(rng: RNG): (Boolean, RNG) =
+    rng.nextInt match { case (i,rng2) => (i%2==0,rng2) }
+
   // 6.4
   def ints(count: Int)(rng: RNG): (List[Int], RNG) =
     (0 until count).foldLeft((List[Int](), rng)) { (p, _) =>

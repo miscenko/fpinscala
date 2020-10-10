@@ -6,7 +6,7 @@ import fpinscala.parallelism._
 import fpinscala.parallelism.Par.Par
 import Gen._
 import Prop._
-import java.util.concurrent.{Executors,ExecutorService}
+import java.util.concurrent.{Executors, ExecutorService}
 
 /*
 The library developed in this chapter goes through several iterations. This file is just the
@@ -21,12 +21,23 @@ object Prop {
 }
 
 object Gen {
-  def unit[A](a: => A): Gen[A] = ???
+  def unit[A](a: => A): Gen[A] = Gen(State.unit(a))
+
+  // 8.4
+  def choose(start: Int, stopExclusive: Int): Gen[Int] =
+    Gen(State(RNG.nonNegativeInt).map(n => start + n % (stopExclusive - start)))
+
+  // 8.5
+  def boolean: Gen[Boolean] = Gen(State(RNG.boolean))
+
+  def listOfN[A](n: Int, g: Gen[A]): Gen[List[A]] =
+    Gen(State.sequence(List.fill(n)(g.sample)))
 }
 
-trait Gen[A] {
-  def map[A,B](f: A => B): Gen[B] = ???
-  def flatMap[A,B](f: A => Gen[B]): Gen[B] = ???
+case class Gen[+A](sample: State[RNG, A]) {
+  def map[A, B](f: A => B): Gen[B] = ???
+
+  def flatMap[A, B](f: A => Gen[B]): Gen[B] = ???
 }
 
 trait SGen[+A] {
