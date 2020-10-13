@@ -32,12 +32,22 @@ object Gen {
 
   def listOfN[A](n: Int, g: Gen[A]): Gen[List[A]] =
     Gen(State.sequence(List.fill(n)(g.sample)))
+
+  // 8.7
+  def union[A](g1: Gen[A], g2: Gen[A]): Gen[A] =
+    boolean flatMap((b: Boolean) => if (b) g1 else g2)
 }
 
 case class Gen[+A](sample: State[RNG, A]) {
   def map[A, B](f: A => B): Gen[B] = ???
 
-  def flatMap[A, B](f: A => Gen[B]): Gen[B] = ???
+  // 8.6
+  def flatMap[B](f: A => Gen[B]): Gen[B] =
+    Gen(sample.flatMap(a => f(a).sample))
+
+  def listOfN(size: Int): Gen[List[A]] = Gen.listOfN(size, this)
+
+  def listOfN(size: Gen[Int]): Gen[List[A]] = size flatMap ((n: Int) => this.listOfN(n))
 }
 
 trait SGen[+A] {
