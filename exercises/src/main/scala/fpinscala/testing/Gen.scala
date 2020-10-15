@@ -1,6 +1,5 @@
 package fpinscala.testing
 
-import fpinscala.laziness.Stream
 import fpinscala.state._
 import fpinscala.parallelism._
 import fpinscala.parallelism.Par.Par
@@ -13,11 +12,46 @@ The library developed in this chapter goes through several iterations. This file
 shell, which you can fill in and modify while working through the chapter.
 */
 
-trait Prop {
+case class Prop(run: (TestCases, RNG) => Result) {
+  // 8.9
+  def &&(p: Prop): Prop = ???
+  def ||(p: Prop): Prop = ???
 }
 
 object Prop {
-  def forAll[A](gen: Gen[A])(f: A => Boolean): Prop = ???
+  type SuccessCount = Int
+  type FailedCase = String
+  type TestCases = Int
+
+  sealed trait Result {
+    def isFalsified: Boolean
+  }
+
+  case object Passed extends Result {
+    override def isFalsified: Boolean = false
+  }
+
+  case class Falsified(failure: FailedCase, successes: SuccessCount) extends Result {
+    override def isFalsified: Boolean = true
+  }
+
+  def forAll[A](as: Gen[A])(f: A => Boolean): Prop = Prop (
+    (n, rng) => randomStream(as)(rng).zip(LazyList.from(0)).take(n).map {
+      case (a, i) => try {
+        if (f(a)) Passed else Falsified(a.toString, i)
+      } catch {
+        case e: Exception => Falsified(buildMsg(a, e), i)
+      }
+    }.find(_.isFalsified).getOrElse(Passed)
+  )
+
+  def randomStream[A](g: Gen[A])(rng: RNG): LazyList[A] =
+    LazyList.unfold(rng)(rng => Some(g.sample.run(rng)))
+
+  def buildMsg[A](s: A, e: Exception): String =
+    s"test case: $s\n" +
+      s"generated an exception: %{e.getMessage}\n" +
+      s"stack trace:\n ${e.getStackTrace.mkString("\n")}"
 }
 
 object Gen {
@@ -36,6 +70,12 @@ object Gen {
   // 8.7
   def union[A](g1: Gen[A], g2: Gen[A]): Gen[A] =
     boolean flatMap((b: Boolean) => if (b) g1 else g2)
+
+  // 8.8
+  def weighted[A](g1: (Gen[A],Double), g2: (Gen[A],Double)): Gen[A] = {
+    val threshold = g1._2.abs / (g1._2.abs + g2._2.abs)
+    Gen(State(RNG.double).flatMap(d => if (d < threshold) g1._1.sample else g2._1.sample))
+  }
 }
 
 case class Gen[+A](sample: State[RNG, A]) {
