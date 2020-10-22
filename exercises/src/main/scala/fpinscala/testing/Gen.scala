@@ -14,14 +14,34 @@ shell, which you can fill in and modify while working through the chapter.
 
 case class Prop(run: (TestCases, RNG) => Result) {
   // 8.9
-  def &&(p: Prop): Prop = ???
-  def ||(p: Prop): Prop = ???
+  def &&(p: Prop): Prop = Prop {
+    (n, rng) =>
+      run(n, rng) match {
+        case Passed => p.run(n, rng)
+        case x => x
+      }
+  }
+
+  def tag(msg: String): Prop = Prop {
+    (n, rng) => run(n, rng) match {
+      case Falsified(errMsg, c) => Falsified(msg + "\n" + errMsg, c)
+      case x => x
+    }
+  }
+
+  def ||(p: Prop): Prop = Prop {
+    (n, rng) => run(n, rng) match {
+      case Falsified(msg, _) => p.tag(msg).run(n, rng)
+      case x => x
+    }
+  }
 }
 
 object Prop {
   type SuccessCount = Int
   type FailedCase = String
   type TestCases = Int
+  type MaxSize = Int
 
   sealed trait Result {
     def isFalsified: Boolean
@@ -35,7 +55,7 @@ object Prop {
     override def isFalsified: Boolean = true
   }
 
-  def forAll[A](as: Gen[A])(f: A => Boolean): Prop = Prop (
+  def forAll[A](as: Gen[A])(f: A => Boolean): Prop = Prop(
     (n, rng) => randomStream(as)(rng).zip(LazyList.from(0)).take(n).map {
       case (a, i) => try {
         if (f(a)) Passed else Falsified(a.toString, i)
@@ -69,13 +89,14 @@ object Gen {
 
   // 8.7
   def union[A](g1: Gen[A], g2: Gen[A]): Gen[A] =
-    boolean flatMap((b: Boolean) => if (b) g1 else g2)
+    boolean flatMap ((b: Boolean) => if (b) g1 else g2)
 
   // 8.8
-  def weighted[A](g1: (Gen[A],Double), g2: (Gen[A],Double)): Gen[A] = {
+  def weighted[A](g1: (Gen[A], Double), g2: (Gen[A], Double)): Gen[A] = {
     val threshold = g1._2.abs / (g1._2.abs + g2._2.abs)
     Gen(State(RNG.double).flatMap(d => if (d < threshold) g1._1.sample else g2._1.sample))
   }
+
 }
 
 case class Gen[+A](sample: State[RNG, A]) {
