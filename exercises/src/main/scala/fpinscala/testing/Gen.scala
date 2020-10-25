@@ -12,28 +12,30 @@ The library developed in this chapter goes through several iterations. This file
 shell, which you can fill in and modify while working through the chapter.
 */
 
-case class Prop(run: (TestCases, RNG) => Result) {
+case class Prop(run: (MaxSize, TestCases, RNG) => Result) {
   // 8.9
   def &&(p: Prop): Prop = Prop {
-    (n, rng) =>
-      run(n, rng) match {
-        case Passed => p.run(n, rng)
+    (max, n, rng) =>
+      run(max, n, rng) match {
+        case Passed => p.run(max, n, rng)
         case x => x
       }
   }
 
   def tag(msg: String): Prop = Prop {
-    (n, rng) => run(n, rng) match {
-      case Falsified(errMsg, c) => Falsified(msg + "\n" + errMsg, c)
-      case x => x
-    }
+    (max, n, rng) =>
+      run(max, n, rng) match {
+        case Falsified(errMsg, c) => Falsified(msg + "\n" + errMsg, c)
+        case x => x
+      }
   }
 
   def ||(p: Prop): Prop = Prop {
-    (n, rng) => run(n, rng) match {
-      case Falsified(msg, _) => p.tag(msg).run(n, rng)
-      case x => x
-    }
+    (max, n, rng) =>
+      run(max, n, rng) match {
+        case Falsified(msg, _) => p.tag(msg).run(max, n, rng)
+        case x => x
+      }
   }
 }
 
@@ -55,6 +57,9 @@ object Prop {
     override def isFalsified: Boolean = true
   }
 
+  def apply(f: (TestCases, RNG) => Result): Prop =
+    Prop { (_, n, rng) => f(n, rng) }
+
   def forAll[A](as: Gen[A])(f: A => Boolean): Prop = Prop(
     (n, rng) => randomStream(as)(rng).zip(LazyList.from(0)).take(n).map {
       case (a, i) => try {
@@ -72,6 +77,22 @@ object Prop {
     s"test case: $s\n" +
       s"generated an exception: %{e.getMessage}\n" +
       s"stack trace:\n ${e.getStackTrace.mkString("\n")}"
+
+  def forAll[A](g: SGen[A])(f: A => Boolean): Prop =
+    forAll(g(_))(f)
+
+  def forAll[A](g: Int => Gen[A])(f: A => Boolean): Prop = Prop {
+    (max,n,rng) =>
+      val casesPerSize = (n - 1) / max + 1
+      val props: Stream[Prop] =
+        Stream.from(0).take((n min max) + 1).map(i => forAll(g(i))(f))
+      val prop: Prop =
+        props.map(p => Prop { (max, n, rng) =>
+          p.run(max, casesPerSize, rng)
+        }).toList.reduce(_ && _)
+      prop.run(max,n,rng)
+  }
+
 }
 
 object Gen {
@@ -97,6 +118,10 @@ object Gen {
     Gen(State(RNG.double).flatMap(d => if (d < threshold) g1._1.sample else g2._1.sample))
   }
 
+  // 8.12
+  def listOf[A](g: Gen[A]): SGen[List[A]] =
+    SGen { n => g.listOfN(n) }
+
 }
 
 case class Gen[+A](sample: State[RNG, A]) {
@@ -118,10 +143,15 @@ case class SGen[+A](g: Int => Gen[A]) {
   // 8.11
   def apply(n: Int): Gen[A] = g(n)
 
-  def map[B](f: A => B): SGen[B] = SGen { g(_) map f }
+  def map[B](f: A => B): SGen[B] = SGen {
+    g(_) map f
+  }
 
-  def flatMap[B](f: A => SGen[B]): SGen[B]  = SGen {
-    n => g(n) flatMap { f(_).g(n) }
+  def flatMap[B](f: A => SGen[B]): SGen[B] = SGen {
+    n =>
+      g(n) flatMap {
+        f(_).g(n)
+      }
   }
 }
 
