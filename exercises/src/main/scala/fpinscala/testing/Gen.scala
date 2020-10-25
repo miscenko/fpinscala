@@ -93,6 +93,18 @@ object Prop {
       prop.run(max,n,rng)
   }
 
+  def run(p: Prop,
+          maxSize: Int = 100,
+          testCases: Int = 100,
+          rng: RNG = RNG.Simple(System.currentTimeMillis)): Unit =
+    p.run(maxSize, testCases, rng) match {
+      case Falsified(msg, n) =>
+        println(s"! Falsified after $n passed tests:\n $msg")
+      case Passed =>
+        println(s"+ OK, passed $testCases tests.")
+      //case Proved =>
+      //  println(s"+ OK, proved property.")
+    }
 }
 
 object Gen {
@@ -122,6 +134,15 @@ object Gen {
   def listOf[A](g: Gen[A]): SGen[List[A]] =
     SGen { n => g.listOfN(n) }
 
+  // 8.13
+  def listOf1[A](g: Gen[A]): SGen[List[A]] =
+    SGen(n => g.listOfN(n max 1))
+
+  val smallInt = Gen.choose(-10,10)
+  val maxProp1 = Prop.forAll(Gen.listOf1(smallInt)) { l =>
+    val max = l.max
+    !l.exists(_ > max) // No value greater than `max` should exist in `l`
+  }
 }
 
 case class Gen[+A](sample: State[RNG, A]) {

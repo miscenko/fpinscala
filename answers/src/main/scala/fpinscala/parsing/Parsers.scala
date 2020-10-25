@@ -187,9 +187,12 @@ case class Location(input: String, offset: Int = 0) {
   def advanceBy(n: Int) = copy(offset = offset+n)
 
   /* Returns the line corresponding to this location */
+  /* cannot compile
   def currentLine: String =
     if (input.length > 1) input.lines.drop(line-1).next
     else ""
+
+   */
 
   def columnCaret = (" " * (col-1)) + "^"
 }
@@ -225,7 +228,7 @@ case class ParseError(stack: List[(Location,String)] = List()) {
     else {
       val collapsed = collapseStack(stack)
       val context =
-        collapsed.lastOption.map("\n\n" + _._1.currentLine).getOrElse("") +
+        // TODO: cannot compile: collapsed.lastOption.map("\n\n" + _._1.currentLine).getOrElse("") +
         collapsed.lastOption.map("\n" + _._1.columnCaret).getOrElse("")
       collapsed.map { case (loc,msg) => loc.line.toString + "." + loc.col + " " + msg }.mkString("\n") +
       context
