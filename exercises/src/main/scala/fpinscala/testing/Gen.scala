@@ -143,6 +143,11 @@ object Gen {
     val max = l.max
     !l.exists(_ > max) // No value greater than `max` should exist in `l`
   }
+
+  val sortedProp = Prop.forAll(Gen.listOf(smallInt)) { l =>
+    val ls = l.sorted
+    l.isEmpty || ls.tail.isEmpty || !ls.zip(ls.tail).exists { case (a,b) => a > b }
+  }
 }
 
 case class Gen[+A](sample: State[RNG, A]) {
